@@ -2,8 +2,8 @@ import express from 'express';
 
 const router = express.Router();
 
-router.get('/messages', (req, res) => {
-  res.send('messages is ok');
+router.get('/conversation', (req, res) => {
+  res.send('conversation is ok');
 });
 
 
