@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020", // Specifies what version of ECMAScript the code should be compiled to.
-    "module": "NodeNext", // Specifies what module code should be generated.
+    "module": "NodeNext", //Specifies what module code should be generated.
     "moduleResolution": "NodeNext", // Specifies how TypeScript should resolve module imports.
     "outDir": "./backend/dist", // Redirect output structure to the directory.
     "rootDir": "./backend",
