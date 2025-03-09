@@ -4,6 +4,7 @@ import messagesRouter from './routes/messsages.route.js';
 
 const app = express();
 
+app.use(express.json()); // for parsing application/json
 app.use('/api/auth', authRouter);
 app.use('/api/messages', messagesRouter);
 
