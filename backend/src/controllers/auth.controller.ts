@@ -1,28 +1,35 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
-import bcrypt from "bcryptjs";
+import bcryptjs from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
 
-export const signup = async (req: Request, res: Response) => {
+export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
     const { fullName, username, password, confirmPassword, gender } = req.body;
+
     if (!fullName || !username || !password || !confirmPassword || !gender) {
-      return res.status(400).json({ error: 'All fields are required' });
-    };
+      res.status(400).json({ error: "Please fill in all fields" });
+      return
+    }
+
     if (password !== confirmPassword) {
-      return res.status(400).json({ error: 'Passwords do not match' });
-    };
+      res.status(400).json({ error: "Passwords don't match" });
+      return
+    }
 
     const user = await prisma.user.findUnique({ where: { username } });
+
     if (user) {
-      return res.status(400).json({ error: 'Username already exists' });
-    };
+      res.status(400).json({ error: "Username already exists" });
+      return
+    }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
 
-    const boyProfilePic = `https://avatar-placeholder.iran.liara.run/public/avatars/boy?username=${username}`;
-    const girlProfilePic = `https://avatar-placeholder.iran.liara.run/public/avatars/girl?username=${username}`;
+    // https://avatar-placeholder.iran.liara.run/
+    const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+    const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
 
     const newUser = await prisma.user.create({
       data: {
@@ -30,29 +37,28 @@ export const signup = async (req: Request, res: Response) => {
         username,
         password: hashedPassword,
         gender,
-        profilePic: gender === 'male' ? boyProfilePic : girlProfilePic,
-      }
+        profilePic: gender === "MALE" ? boyProfilePic : girlProfilePic,
+      },
     });
 
     if (newUser) {
-      // Generamos un token de sesión
+      // generate token in a sec
       generateToken(newUser.id, res);
 
-      return res.status(201).json({
+      res.status(201).json({
         id: newUser.id,
         fullName: newUser.fullName,
         username: newUser.username,
         profilePic: newUser.profilePic,
       });
     } else {
-      return res.status(400).json({ error: 'Invalid user data' });
-    };
+      res.status(400).json({ error: "Invalid user data" });
+    }
   } catch (error: any) {
     console.log("Error in signup controller", error.message);
-    res.status(500).json({ error: "Internal server error" });
-  };
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
-
 export const login = (req: Request, res: Response) => {
   res.send('login is ok');
 };

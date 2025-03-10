@@ -1,6 +1,6 @@
 import express from 'express';
-import authRouter from './routes/auth.route.js';
-import messagesRouter from './routes/messsages.route.js';
+import authRouter from './routes/auth.route.js'; // import the auth router
+import messagesRouter from './routes/messages.route.js';
 
 const app = express();
 
