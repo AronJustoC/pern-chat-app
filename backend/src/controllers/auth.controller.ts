@@ -59,8 +59,38 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-export const login = (req: Request, res: Response) => {
-  res.send('login is ok');
+export const login = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username, password } = req.body;
+    const user = await prisma.user.findUnique({ where: { username } });
+
+    if (!user) {
+      res.status(400).json({ error: 'Invalid credentials' });
+      return
+    }
+
+    const isPasswordCorrect = await bcryptjs.compare(password, user.password);
+
+    if (!isPasswordCorrect) {
+      res.status(400).json({ error: 'Invalid credentials' });
+      return
+    }
+
+    generateToken(user.id, res);
+
+    res.status(200).json(
+      {
+        id: user.id,
+        fullName: user.fullName,
+        username: user.username,
+        profilePic: user.profilePic,
+      });
+
+
+  } catch (error: any) {
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 export const logout = (req: Request, res: Response) => {
